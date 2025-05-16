@@ -210,18 +210,44 @@ h2 {
 }
 
 /* Notice section styles */
+.notice-section .container {
+    padding: 0;
+    overflow: hidden;
+}
+
 .notice-list {
-    max-width: 800px;
-    margin: 0 auto;
+    display: flex;
+    gap: 15px;
+    padding: 20px 60px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin: 0 calc(-20px - 40px);
+    width: calc(100% + 120px);
+    cursor: grab;
+}
+
+.notice-list:active {
+    cursor: grabbing;
+}
+
+.notice-list::-webkit-scrollbar {
+    display: none;
 }
 
 .notice-item {
+    flex: 0 0 300px;
+    margin-bottom: 0;
+    scroll-snap-align: center;
     background: var(--white);
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: relative;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .notice-item h3 {
@@ -595,31 +621,11 @@ h2 {
     }
 
     .notice-list {
-        display: flex;
-        gap: 15px;
-        padding: 20px;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        margin: 0 -20px;
-    }
-
-    .notice-list::-webkit-scrollbar {
-        display: none;
+        padding: 20px 40px;
     }
 
     .notice-item {
-        flex: 0 0 300px;
-        margin-bottom: 0;
-        scroll-snap-align: center;
-        background: var(--white);
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
+        flex: 0 0 280px;
     }
 
     .notice-item h3 {
@@ -726,6 +732,14 @@ h2 {
 
     .info-item p {
         font-size: 0.8em;
+    }
+
+    .notice-list {
+        padding: 20px 30px;
+    }
+
+    .notice-item {
+        flex: 0 0 260px;
     }
 }
 
