@@ -596,14 +596,15 @@ h2 {
     .pricing-grid {
         display: flex;
         gap: 15px;
-        padding: 20px 20px 20px 40px;
+        padding: 20px;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         -ms-overflow-style: none;
-        margin: 0 -20px;
-        width: calc(100% + 40px);
+        margin: 0 calc(-20px - 40px);
+        padding: 20px 60px;
+        width: calc(100% + 120px);
     }
 
     .pricing-grid::-webkit-scrollbar {
@@ -617,7 +618,7 @@ h2 {
     }
 
     .pricing-card:last-child {
-        margin-right: 40px;
+        margin-right: 0;
     }
 
     .pricing-section .container {
@@ -896,4 +897,13 @@ h2 {
     .swiper-slide img {
         object-position: center 20%;
     }
+}
+
+/* 영업시간 텍스트 변경 */
+.business-hours::before {
+    content: '상담가능시간';
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--primary-blue);
 } 
