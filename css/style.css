@@ -231,7 +231,7 @@ h2 {
 .pricing-section {
     background-color: var(--light-gray);
     padding: 60px 0;
-    overflow-x: hidden; /* Prevent horizontal scrollbar on the section */
+    overflow-x: hidden;
 }
 
 .pricing-grid {
@@ -531,27 +531,21 @@ h2 {
     }
 
     .location-content {
-        grid-template-columns: 55% 1fr;
-        gap: 15px;
-        align-items: stretch;
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .map-container {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+        height: 400px;
     }
 
     .map {
-        flex: 1;
-        min-height: 320px;
+        min-height: 350px;
     }
 
     .location-info {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
         gap: 15px;
     }
 
@@ -606,41 +600,30 @@ h2 {
         overflow-x: auto;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE and Edge */
-        justify-content: center;
-        align-items: center;
-        min-width: 100%;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        margin: 0 -20px;
+        padding: 20px;
+        width: calc(100% + 40px);
     }
 
     .pricing-grid::-webkit-scrollbar {
-        display: none; /* Chrome, Safari, Opera */
+        display: none;
     }
 
     .pricing-card {
-        flex: 0 0 300px; /* Slightly wider cards */
+        flex: 0 0 280px;
         scroll-snap-align: center;
-        padding: 25px;
-        margin: 0 auto;
+        margin-right: 15px;
     }
 
-    .pricing-card h3 {
-        font-size: 1.1em;
-        margin-bottom: 10px;
+    .pricing-card:last-child {
+        margin-right: 0;
     }
 
-    .price {
-        font-size: 1.5em;
-        margin: 10px 0;
-    }
-
-    .pricing-card ul {
-        margin: 10px 0;
-    }
-
-    .pricing-card li {
-        margin: 6px 0;
-        font-size: 0.9em;
+    .pricing-section .container {
+        padding: 0;
+        overflow: hidden;
     }
 
     .nav ul {
@@ -753,29 +736,21 @@ h2 {
 
 /* 더 작은 화면에서의 조정 */
 @media (max-width: 480px) {
-    .pricing-card h3 {
-        font-size: 1em;
-    }
-
-    .price {
-        font-size: 1.2em;
-    }
-
-    .pricing-card li {
-        font-size: 0.85em;
-    }
-
-    .location-content {
-        grid-template-columns: 50% 1fr;
-        gap: 10px;
-    }
-
-    .map {
-        min-height: 280px;
+    .pricing-card {
+        flex: 0 0 260px;
     }
 
     .location-info {
-        gap: 10px;
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .map-container {
+        height: 350px;
+    }
+
+    .map {
+        min-height: 300px;
     }
 
     .info-item {
