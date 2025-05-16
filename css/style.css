@@ -279,6 +279,7 @@ h2 {
     gap: 25px;
     max-width: 900px;
     margin: 0 auto;
+    padding: 0 20px;
 }
 
 .pricing-card {
@@ -364,6 +365,7 @@ h2 {
     text-decoration: none;
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .map-button:hover {
@@ -550,11 +552,15 @@ h2 {
     }
 
     .map-buttons {
-        padding: 8px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding: 10px;
     }
 
     .map-button {
-        padding: 6px 8px;
+        width: 100%;
+        padding: 10px;
         font-size: 0.85em;
     }
 
@@ -585,9 +591,8 @@ h2 {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         -ms-overflow-style: none;
-        margin: 0 calc(-20px - 40px);
-        padding: 20px 60px;
-        width: calc(100% + 120px);
+        margin: 0;
+        width: 100%;
     }
 
     .pricing-grid::-webkit-scrollbar {
@@ -601,7 +606,7 @@ h2 {
     }
 
     .pricing-card:last-child {
-        margin-right: 0;
+        margin-right: 20px;
     }
 
     .pricing-section .container {
@@ -621,7 +626,9 @@ h2 {
     }
 
     .notice-list {
-        padding: 20px 40px;
+        padding: 20px;
+        margin: 0;
+        width: 100%;
     }
 
     .notice-item {
@@ -722,8 +729,8 @@ h2 {
     }
 
     .map-buttons {
-        flex-direction: column;
-        gap: 6px;
+        grid-template-columns: repeat(2, 1fr);
+        padding: 8px;
     }
 
     .info-item h3 {
@@ -735,10 +742,14 @@ h2 {
     }
 
     .notice-list {
-        padding: 20px 30px;
+        padding: 20px;
     }
 
     .notice-item {
+        flex: 0 0 260px;
+    }
+
+    .pricing-card {
         flex: 0 0 260px;
     }
 }
