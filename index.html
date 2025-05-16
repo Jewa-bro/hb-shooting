@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HB Shooting - 레이저 사격장</title>
+    <title>대전HB슈팅클럽 - 레이저 사격장</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
@@ -13,15 +13,16 @@
     <link rel="manifest" href="images/site.webmanifest">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
+    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=dzzkq2uevj"></script>
 </head>
 <body>
     <header class="header">
         <div class="container">
             <a href="#intro" class="logo-container">
                 <div class="logo">
-                    <img src="images/favicon-96x96.png" alt="HB Shooting Logo">
+                    <img src="images/favicon-96x96.png" alt="대전HB슈팅클럽 Logo">
                 </div>
-                <h1 class="club-name">HB슈팅클럽</h1>
+                <h1 class="club-name">대전HB슈팅클럽</h1>
             </a>
             <nav class="nav">
                 <ul>
@@ -93,22 +94,25 @@
                 <h2>찾아오시는 길</h2>
                 <div class="location-content">
                     <div class="map-container">
-                        <a href="https://maps.google.com/?q=대전광역시+대덕대로+317번길+20+선사엔조이" target="_blank" class="map-link">
-                            <img src="images/map.png" alt="HB슈팅클럽 위치" class="map-image">
-                            <div class="map-overlay">
-                                <span>지도 크게 보기</span>
-                            </div>
-                        </a>
+                        <div id="map" class="map"></div>
+                        <div class="map-buttons">
+                            <a href="https://map.naver.com/v5/directions/36.3614132,127.3826455" 
+                               target="_blank" 
+                               class="map-button">
+                                길찾기
+                            </a>
+                            <button type="button" 
+                                    class="map-button" 
+                                    onclick="window.open('https://map.naver.com/v5/search/HB슈팅클럽/place')">
+                                지도 크게보기
+                            </button>
+                        </div>
                     </div>
                     <div class="location-info">
                         <div class="info-item">
                             <h3>주소</h3>
                             <p>대전광역시 대덕대로 317번길 20 선사엔조이 5층</p>
-                        </div>
-                        <div class="info-item">
-                            <h3>대중교통</h3>
-                            <p>지하철: 대전 1호선 정부청사역 3번 출구에서 도보 11분</p>
-                            <p>버스: 105, 203, 301번 선사엔조이 앞 하차</p>
+                            <p>(정부청사역 3번 출구에서 도보 11분)</p>
                         </div>
                         <div class="info-item">
                             <h3>주차</h3>
@@ -124,10 +128,14 @@
             <div class="container">
                 <h2>상담 문의</h2>
                 <div class="contact-info">
-                    <p class="contact-number">문의 : 010-8246-0314</p>
-                    <a href="tel:010-8246-0314" class="call-button">
-                        전화 상담하기
-                    </a>
+                    <div class="contact-buttons">
+                        <a href="tel:010-8246-0314" class="call-button">
+                            전화 상담하기
+                        </a>
+                        <a href="https://open.kakao.com/o/sbYHQnYf" target="_blank" class="kakao-button">
+                            카카오톡 문의하기
+                        </a>
+                    </div>
                     <p class="business-hours">
                         영업시간: 10:00 - 22:00 (연중무휴)
                     </p>
@@ -139,10 +147,18 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-info">
-                    <p>HB Shooting Club</p>
-                    <p>주소: 대전광역시 대덕대로 317번길 20 선사엔조이 5층</p>
+                <div class="footer-section">
+                    <h4>대전HB슈팅클럽</h4>
+                    <p>대전광역시 대덕대로 317번길 20 선사엔조이 5층</p>
+                    <p>고유번호: 203-82-73001 | 대표: 명희정</p>
                 </div>
+                <div class="footer-section">
+                    <h4>이용 안내</h4>
+                    <p>영업시간: 10:00 - 22:00 (연중무휴)</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>Copyright © 2024 대전HB슈팅클럽. All rights reserved.</p>
             </div>
         </div>
     </footer>

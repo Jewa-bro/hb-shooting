@@ -50,15 +50,18 @@ sliderImages.forEach(image => {
 const notices = [
     {
         title: '5월 운영시간 안내',
-        content: '5월 연휴 기간 정상 운영합니다. (10:00-22:00)'
+        content: '5월 연휴 기간 정상 운영합니다. (10:00-22:00)',
+        date: '2024.03.21'
     },
     {
         title: '단체 예약 안내',
-        content: '10인 이상 단체 예약시 10% 할인 혜택을 드립니다.'
+        content: '10인 이상 단체 예약시 10% 할인 혜택을 드립니다.',
+        date: '2024.03.20'
     },
     {
         title: '초보자 강습 프로그램',
-        content: '매주 토요일 오전 11시 초보자 무료 강습을 진행합니다.'
+        content: '매주 토요일 오전 11시 초보자 무료 강습을 진행합니다.',
+        date: '2024.03.19'
     }
 ];
 
@@ -68,6 +71,7 @@ notices.forEach(notice => {
     const noticeItem = document.createElement('div');
     noticeItem.className = 'notice-item';
     noticeItem.innerHTML = `
+        <span class="notice-date">${notice.date}</span>
         <h3>${notice.title}</h3>
         <p>${notice.content}</p>
     `;
@@ -161,5 +165,62 @@ const createMobileMenu = () => {
     checkScreenSize();
 };
 
-createMobileMenu();
-initSmoothScroll(); 
+// 네이버 지도 초기화
+function initMap() {
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
+
+    const mapOptions = {
+        center: new naver.maps.LatLng(36.3614132, 127.3826455),
+        zoom: 15,
+        zoomControl: true,
+        zoomControlOptions: {
+            position: naver.maps.Position.TOP_RIGHT
+        }
+    };
+
+    const map = new naver.maps.Map(mapContainer, mapOptions);
+
+    // 마커 추가
+    const marker = new naver.maps.Marker({
+        position: new naver.maps.LatLng(36.3614132, 127.3826455),
+        map: map
+    });
+
+    // 정보창 추가
+    const contentString = [
+        '<div class="iw_inner" style="padding:10px;min-width:200px;text-align:center;">',
+        '   <h4 style="margin-bottom:5px;color:#1e3a8a;">대전HB슈팅클럽</h4>',
+        '   <p style="font-size:13px;color:#666;">대전광역시 대덕대로 317번길 20<br/>선사엔조이 5층</p>',
+        '</div>'
+    ].join('');
+
+    const infowindow = new naver.maps.InfoWindow({
+        content: contentString,
+        maxWidth: 300,
+        backgroundColor: "#fff",
+        borderColor: "#ddd",
+        borderWidth: 1,
+        anchorSize: new naver.maps.Size(20, 20),
+        anchorSkew: true,
+        pixelOffset: new naver.maps.Point(0, -10)
+    });
+
+    naver.maps.Event.addListener(marker, "click", function(e) {
+        if (infowindow.getMap()) {
+            infowindow.close();
+        } else {
+            infowindow.open(map, marker);
+        }
+    });
+
+    // 초기에 정보창 표시
+    infowindow.open(map, marker);
+}
+
+// 초기화 함수 호출
+window.addEventListener('load', () => {
+    createMobileMenu();
+    initSmoothScroll();
+    initMap();
+}); 
