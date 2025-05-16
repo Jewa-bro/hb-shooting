@@ -256,4 +256,13 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('load', () => {
     createMobileMenu();
     initSmoothScroll();
-}); 
+});
+
+// 네이버 지도 인증 실패 핸들러
+window.navermap_authFailure = function() {
+    console.error('네이버 지도 인증 실패');
+    const mapContainer = document.getElementById('map');
+    if (mapContainer) {
+        mapContainer.innerHTML = '<div style="padding: 20px; text-align: center;">네이버 지도 인증에 실패했습니다.<br>관리자에게 문의해주세요.</div>';
+    }
+}; 
