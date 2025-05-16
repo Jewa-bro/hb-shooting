@@ -277,7 +277,7 @@ h2 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
-    max-width: 900px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -287,31 +287,72 @@ h2 {
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    text-align: center;
+    text-align: left;
+    max-width: 360px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .pricing-card h3 {
     color: var(--dark-gray);
-    margin-bottom: 15px;
-    font-size: 1.2em;
-}
-
-.price {
-    font-size: 1.8em;
-    font-weight: bold;
-    margin: 15px 0;
-    color: var(--dark-gray);
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    text-align: center;
 }
 
 .pricing-card ul {
     list-style: none;
-    margin: 15px 0;
+    margin: 0;
+    padding: 0;
 }
 
 .pricing-card li {
-    margin: 8px 0;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
     color: var(--dark-gray);
     font-size: 0.95em;
+}
+
+.pricing-card li:last-child {
+    border-bottom: none;
+}
+
+.pricing-card li strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+    color: var(--primary-blue);
+}
+
+.pricing-card .price {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.pricing-card .price span {
+    display: block;
+}
+
+.pricing-card .price .original {
+    color: #888;
+    text-decoration: line-through;
+    font-size: 0.9em;
+}
+
+.pricing-card .price .discount {
+    color: var(--primary-red);
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.pricing-notice {
+    text-align: center;
+    margin-top: 30px;
+    color: var(--primary-blue);
+    font-size: 0.95em;
+    font-weight: 500;
 }
 
 /* Location section styles */

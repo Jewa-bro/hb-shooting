@@ -1,7 +1,7 @@
 // 슬라이더 설정
 const slides = [
     {
-        image: 'images/slide1.jpg',
+        image: 'images/industurctor.jpg',
         title: '안전한 실내 레이저 사격',
         description: '누구나 쉽게 즐길 수 있는 레이저 사격을 경험해보세요'
     },
