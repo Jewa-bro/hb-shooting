@@ -596,14 +596,13 @@ h2 {
     .pricing-grid {
         display: flex;
         gap: 15px;
-        padding: 20px;
+        padding: 20px 20px 20px 40px;
         overflow-x: auto;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         -ms-overflow-style: none;
         margin: 0 -20px;
-        padding: 20px;
         width: calc(100% + 40px);
     }
 
@@ -618,7 +617,7 @@ h2 {
     }
 
     .pricing-card:last-child {
-        margin-right: 0;
+        margin-right: 40px;
     }
 
     .pricing-section .container {
