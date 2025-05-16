@@ -174,8 +174,15 @@ function initMap() {
     }
 
     // 네이버 맵 API가 로드되었는지 확인
-    if (typeof naver === 'undefined' || !naver.maps) {
+    if (typeof naver === 'undefined') {
         console.error('Naver Maps API not loaded');
+        mapContainer.innerHTML = '<div style="padding: 20px; text-align: center;">지도를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.</div>';
+        return;
+    }
+
+    // naver.maps 객체가 있는지 확인
+    if (!naver.maps) {
+        console.error('Naver Maps module not loaded');
         mapContainer.innerHTML = '<div style="padding: 20px; text-align: center;">지도를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.</div>';
         return;
     }
@@ -227,15 +234,26 @@ function initMap() {
 
         // 초기에 정보창 표시
         infowindow.open(map, marker);
+
+        // 지도 로드 완료 후 콘솔에 로그
+        naver.maps.Event.once(map, 'init_stylemap', function() {
+            console.log('Map initialized successfully');
+        });
+
     } catch (error) {
         console.error('Error initializing map:', error);
         mapContainer.innerHTML = '<div style="padding: 20px; text-align: center;">지도를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.</div>';
     }
 }
 
+// DOM이 완전히 로드된 후 지도 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    // 약간의 지연을 주어 API가 완전히 로드되도록 함
+    setTimeout(initMap, 500);
+});
+
 // 초기화 함수 호출
 window.addEventListener('load', () => {
     createMobileMenu();
     initSmoothScroll();
-    initMap();
 }); 
