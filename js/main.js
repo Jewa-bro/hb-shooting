@@ -1,49 +1,52 @@
+// 슬라이더 설정
+const slides = [
+    {
+        image: 'images/slide1.jpg',
+        title: '안전한 실내 레이저 사격',
+        description: '누구나 쉽게 즐길 수 있는 레이저 사격을 경험해보세요'
+    },
+    {
+        image: 'images/gunimage.jpg',
+        title: '최신식 장비 구비',
+        description: '정확한 사격을 위한 최신 레이저 장비를 구비하고 있습니다'
+    },
+    {
+        image: 'images/concentration.jpg',
+        title: '집중력 향상',
+        description: '사격을 통해 집중력과 정신력을 향상시켜보세요'
+    }
+];
+
 // Swiper 초기화
 const swiper = new Swiper('.swiper', {
-    // 기본 설정
-    direction: 'horizontal',
     loop: true,
     autoplay: {
         delay: 5000,
         disableOnInteraction: false,
     },
-
-    // 페이지네이션
     pagination: {
         el: '.swiper-pagination',
-        clickable: true,
+        clickable: true
     },
-
-    // 네비게이션 화살표
     navigation: {
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev',
     },
 });
 
-// 슬라이더 이미지 데이터
-const sliderImages = [
-    {
-        src: 'images/industurctor.jpg',
-        alt: '전문 강사의 사격 교육',
-        title: '전문 강사진의 체계적인 교육',
-        description: '국가대표 출신 전문 강사진이 안전하고 체계적인 교육을 제공합니다.'
-    }
-];
-
-// 슬라이더 이미지 동적 추가
+// 슬라이드 동적 생성
 const swiperWrapper = document.querySelector('.swiper-wrapper');
-sliderImages.forEach(image => {
-    const slide = document.createElement('div');
-    slide.className = 'swiper-slide';
-    slide.innerHTML = `
-        <img src="${image.src}" alt="${image.alt}">
+slides.forEach(slide => {
+    const slideDiv = document.createElement('div');
+    slideDiv.className = 'swiper-slide';
+    slideDiv.innerHTML = `
+        <img src="${slide.image}" alt="${slide.title}">
         <div class="slide-content">
-            <h3>${image.title}</h3>
-            <p>${image.description}</p>
+            <h3>${slide.title}</h3>
+            <p>${slide.description}</p>
         </div>
     `;
-    swiperWrapper.appendChild(slide);
+    swiperWrapper.appendChild(slideDiv);
 });
 
 // 공지사항 데이터
