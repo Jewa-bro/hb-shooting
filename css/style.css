@@ -256,7 +256,7 @@ h2 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--primary-blue);
+    color: var(--dark-gray);
 }
 
 .notice-date {
@@ -290,7 +290,7 @@ h2 {
 }
 
 .pricing-card h3 {
-    color: var(--primary-blue);
+    color: var(--dark-gray);
     margin-bottom: 15px;
     font-size: 1.2em;
 }
@@ -425,7 +425,7 @@ h2 {
 }
 
 .info-item h3 {
-    color: var(--primary-blue);
+    color: var(--dark-gray);
     margin-bottom: 12px;
     font-size: 1.1em;
 }
@@ -634,7 +634,7 @@ h2 {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        color: var(--primary-blue);
+        color: var(--dark-gray);
     }
 
     .notice-date {
