@@ -168,54 +168,69 @@ const createMobileMenu = () => {
 // 네이버 지도 초기화
 function initMap() {
     const mapContainer = document.getElementById('map');
-    if (!mapContainer) return;
+    if (!mapContainer) {
+        console.error('Map container not found');
+        return;
+    }
 
-    const mapOptions = {
-        center: new naver.maps.LatLng(36.3614132, 127.3826455),
-        zoom: 15,
-        zoomControl: true,
-        zoomControlOptions: {
-            position: naver.maps.Position.TOP_RIGHT
-        }
-    };
+    // 네이버 맵 API가 로드되었는지 확인
+    if (typeof naver === 'undefined' || !naver.maps) {
+        console.error('Naver Maps API not loaded');
+        mapContainer.innerHTML = '<div style="padding: 20px; text-align: center;">지도를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.</div>';
+        return;
+    }
 
-    const map = new naver.maps.Map(mapContainer, mapOptions);
+    try {
+        const mapOptions = {
+            center: new naver.maps.LatLng(36.3614132, 127.3826455),
+            zoom: 15,
+            zoomControl: true,
+            zoomControlOptions: {
+                position: naver.maps.Position.TOP_RIGHT
+            }
+        };
 
-    // 마커 추가
-    const marker = new naver.maps.Marker({
-        position: new naver.maps.LatLng(36.3614132, 127.3826455),
-        map: map
-    });
+        const map = new naver.maps.Map(mapContainer, mapOptions);
 
-    // 정보창 추가
-    const contentString = [
-        '<div class="iw_inner" style="padding:10px;min-width:200px;text-align:center;">',
-        '   <h4 style="margin-bottom:5px;color:#1e3a8a;">대전HB슈팅클럽</h4>',
-        '   <p style="font-size:13px;color:#666;">대전광역시 대덕대로 317번길 20<br/>선사엔조이 5층</p>',
-        '</div>'
-    ].join('');
+        // 마커 추가
+        const marker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(36.3614132, 127.3826455),
+            map: map
+        });
 
-    const infowindow = new naver.maps.InfoWindow({
-        content: contentString,
-        maxWidth: 300,
-        backgroundColor: "#fff",
-        borderColor: "#ddd",
-        borderWidth: 1,
-        anchorSize: new naver.maps.Size(20, 20),
-        anchorSkew: true,
-        pixelOffset: new naver.maps.Point(0, -10)
-    });
+        // 정보창 추가
+        const contentString = [
+            '<div class="iw_inner" style="padding:10px;min-width:200px;text-align:center;">',
+            '   <h4 style="margin-bottom:5px;color:#1e3a8a;">대전HB슈팅클럽</h4>',
+            '   <p style="font-size:13px;color:#666;">대전광역시 대덕대로 317번길 20<br/>선사엔조이 5층</p>',
+            '</div>'
+        ].join('');
 
-    naver.maps.Event.addListener(marker, "click", function(e) {
-        if (infowindow.getMap()) {
-            infowindow.close();
-        } else {
-            infowindow.open(map, marker);
-        }
-    });
+        const infowindow = new naver.maps.InfoWindow({
+            content: contentString,
+            maxWidth: 300,
+            backgroundColor: "#fff",
+            borderColor: "#ddd",
+            borderWidth: 1,
+            anchorSize: new naver.maps.Size(20, 20),
+            anchorSkew: true,
+            pixelOffset: new naver.maps.Point(0, -10)
+        });
 
-    // 초기에 정보창 표시
-    infowindow.open(map, marker);
+        naver.maps.Event.addListener(marker, "click", function(e) {
+            if (infowindow.getMap()) {
+                infowindow.close();
+            } else {
+                infowindow.open(map, marker);
+            }
+        });
+
+        // 초기에 정보창 표시
+        infowindow.open(map, marker);
+    } catch (error) {
+        console.error('Error initializing map:', error);
+        mapContainer.innerHTML = '<div style="padding: 20px; text-align: center;">지도를 불러오는데 실패했습니다. 페이지를 새로고침 해주세요.</div>';
+    }
 }
 
 // 초기화 함수 호출
