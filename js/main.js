@@ -49,37 +49,78 @@ slides.forEach(slide => {
     swiperWrapper.appendChild(slideDiv);
 });
 
-// 공지사항 데이터
-const notices = [
-    {
-        title: '5월 운영시간 안내',
-        content: '5월 연휴 기간 정상 운영합니다. (10:00-22:00)',
-        date: '2024.03.21'
-    },
-    {
-        title: '단체 예약 안내',
-        content: '10인 이상 단체 예약시 10% 할인 혜택을 드립니다.',
-        date: '2024.03.20'
-    },
-    {
-        title: '초보자 강습 프로그램',
-        content: '매주 토요일 오전 11시 초보자 무료 강습을 진행합니다.',
-        date: '2024.03.19'
-    }
-];
+// Firebase 구성
+const firebaseConfig = {
+    apiKey: "AIzaSyDlQJxTFw27-hn-2LPDR4Fc3WX7QL1d3KA",
+    authDomain: "hbshooting-ed578.firebaseapp.com",
+    projectId: "hbshooting-ed578",
+    storageBucket: "hbshooting-ed578.firebasestorage.app",
+    messagingSenderId: "607611130808",
+    appId: "1:607611130808:web:3940d481ccee044aa8754d",
+    measurementId: "G-G8E15F2TVC"
+};
 
-// 공지사항 동적 추가
-const noticeList = document.querySelector('.notice-list');
-notices.forEach(notice => {
-    const noticeItem = document.createElement('div');
-    noticeItem.className = 'notice-item';
-    noticeItem.innerHTML = `
-        <span class="notice-date">${notice.date}</span>
-        <h3>${notice.title}</h3>
-        <p>${notice.content}</p>
-    `;
-    noticeList.appendChild(noticeItem);
-});
+// Firebase 초기화
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 공지사항 로드 및 표시
+async function loadNotices() {
+    try {
+        const snapshot = await db.collection('notices')
+            .where('isVisible', '==', true)  // 노출 상태인 공지사항만 가져오기
+            .get();
+
+        const noticeList = document.querySelector('.notice-list');
+        noticeList.innerHTML = ''; // 기존 내용 초기화
+
+        if (snapshot.empty) {
+            noticeList.innerHTML = '<div class="no-notices">등록된 공지사항이 없습니다.</div>';
+            return;
+        }
+
+        // 문서들을 배열로 변환하고 order 필드로 정렬
+        const notices = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            notices.push({
+                id: doc.id,
+                ...data,
+                order: data.order || Number.MAX_SAFE_INTEGER // order가 없는 경우 맨 뒤로
+            });
+        });
+
+        // order 기준으로 정렬
+        notices.sort((a, b) => a.order - b.order);
+
+        notices.forEach(notice => {
+            const date = notice.createdAt ? notice.createdAt.toDate().toLocaleDateString() : '날짜 없음';
+            
+            const noticeItem = document.createElement('div');
+            noticeItem.className = 'notice-item';
+            
+            noticeItem.innerHTML = `
+                <div class="notice-header">
+                    <span class="notice-date">${date}</span>
+                </div>
+                <h3>${notice.title || ''}</h3>
+                <p>${notice.description || ''}</p>
+                <a href="notice-detail.html?id=${notice.id}" class="notice-footer">
+                    <span class="notice-link">자세히 보기</span>
+                </a>
+            `;
+            
+            noticeList.appendChild(noticeItem);
+        });
+    } catch (error) {
+        console.error('공지사항 로드 실패:', error);
+        const noticeList = document.querySelector('.notice-list');
+        noticeList.innerHTML = '<div class="error-message">공지사항을 불러오는데 실패했습니다.</div>';
+    }
+}
+
+// 페이지 로드 시 공지사항 불러오기
+document.addEventListener('DOMContentLoaded', loadNotices);
 
 // 스크롤 시 헤더 스타일 변경
 window.addEventListener('scroll', () => {

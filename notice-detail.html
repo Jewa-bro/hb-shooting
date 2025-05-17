@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 - 대전HB슈팅클럽</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 기본 폰트 설정 */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        /* 클럽 이름 폰트 설정 */
+        .club-name {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--primary-blue);
+            margin: 0;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            transform: translateY(-2px);
+        }
+
+        /* 공지사항 상세 페이지 스타일 */
+        .notice-detail-container {
+            max-width: 800px;
+            margin: 80px auto 60px;
+            padding: 0 20px;
+        }
+
+        .notice-detail {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            min-height: 200px;
+            position: relative;
+        }
+
+        .notice-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+        }
+
+        .notice-title {
+            font-size: 1.8em;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .notice-meta {
+            color: #666;
+            font-size: 0.9em;
+            display: flex;
+            gap: 20px;
+        }
+
+        .notice-content {
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .notice-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+            justify-content: space-between;
+        }
+
+        .notice-actions .left-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .notice-actions .right-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* 목록으로 버튼 스타일 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background-color: #f3f4f6;
+            color: #374151;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            font-size: 0.9em;
+            font-weight: 500;
+            height: 32px;
+        }
+
+        .back-button i {
+            font-size: 0.9em;
+        }
+
+        .back-button:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* 로딩 스피너 스타일 */
+        .loading-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #1e3a8a;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .loading-text {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .notice-detail-container {
+                margin: 60px auto 40px;
+            }
+
+            .notice-title {
+                font-size: 1.5em;
+            }
+
+            .notice-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .club-name {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo-container">
+                <div class="logo">
+                    <img src="images/favicon-96x96.png" alt="대전HB슈팅클럽 Logo">
+                </div>
+                <h1 class="club-name">대전HB슈팅클럽</h1>
+            </a>
+            <nav class="nav">
+                <ul>
+                    <li><a href="index.html#intro">소개</a></li>
+                    <li><a href="index.html#notice">공지사항</a></li>
+                    <li><a href="index.html#pricing">가격안내</a></li>
+                    <li><a href="index.html#location">찾아오시는 길</a></li>
+                    <li><a href="index.html#contact">상담문의</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="notice-detail-container">
+        <div class="notice-detail">
+            <!-- 로딩 상태 표시 -->
+            <div id="loadingSpinner" class="loading-spinner"></div>
+            <div id="loadingText" class="loading-text">공지사항을 불러오는 중...</div>
+
+            <!-- 공지사항 내용 (초기에는 숨김) -->
+            <div id="noticeContent" style="display: none;">
+                <div class="notice-header">
+                    <h1 class="notice-title" id="noticeTitle"></h1>
+                    <div class="notice-meta">
+                        <span id="noticeDate"></span>
+                    </div>
+                </div>
+                <div class="notice-content"></div>
+                <div class="notice-actions">
+                    <div class="left-actions">
+                        <a href="index.html#notice" class="back-button">
+                            <i class="fas fa-arrow-left"></i>
+                            목록으로
+                        </a>
+                    </div>
+                    <div class="right-actions" id="applicationButtonContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="js/notice-detail.js"></script>
+</body>
+</html> 

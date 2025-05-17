@@ -1,0 +1,97 @@
+.application-button {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin: 10px 0;
+    transition: background-color 0.3s ease;
+}
+
+.application-button:hover {
+    background-color: #0056b3;
+    text-decoration: none;
+    color: white;
+}
+
+.applications-container {
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 0;
+    transform: translateY(-10px);
+    opacity: 0;
+}
+
+.applications-container.expanded {
+    max-height: 2000px;
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toggle-applications i {
+    transition: transform 0.3s ease-in-out;
+}
+
+.toggle-applications i.rotated {
+    transform: rotate(90deg);
+}
+
+.project-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.project-row:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.applications-grid {
+    transform-origin: top;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.applications-container.hidden .applications-grid {
+    transform: scaleY(0.95);
+}
+
+.applications-container.expanded .applications-grid {
+    transform: scaleY(1);
+}
+
+.applications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.applications-filters {
+    display: flex;
+    gap: 10px;
+}
+
+.status-filter {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.status-filter:hover {
+    border-color: #007bff;
+}
+
+.status-filter:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+} 
