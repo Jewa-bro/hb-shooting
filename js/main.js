@@ -17,23 +17,6 @@ const slides = [
     }
 ];
 
-// Swiper 초기화
-const swiper = new Swiper('.swiper', {
-    loop: true,
-    autoplay: {
-        delay: 5000,
-        disableOnInteraction: false,
-    },
-    pagination: {
-        el: '.swiper-pagination',
-        clickable: true
-    },
-    navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
-    },
-});
-
 // 슬라이드 동적 생성
 const swiperWrapper = document.querySelector('.swiper-wrapper');
 slides.forEach(slide => {
@@ -48,6 +31,34 @@ slides.forEach(slide => {
     `;
     swiperWrapper.appendChild(slideDiv);
 });
+
+// Swiper 초기화
+const swiper = new Swiper('.swiper', {
+    init: false, // 수동 초기화
+    loop: true,
+    autoplay: {
+        delay: 5000,
+        disableOnInteraction: false,
+    },
+    pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+        dynamicBullets: true, // 동적 불릿 추가
+        dynamicMainBullets: 1
+    },
+    navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+    },
+    on: {
+        init: function() {
+            this.update(); // 초기화 시 업데이트
+        }
+    }
+});
+
+// Swiper 수동 초기화
+swiper.init();
 
 // Firebase 구성
 const firebaseConfig = {

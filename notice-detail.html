@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공지사항 - 대전HB슈팅클럽</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="images/favicon-96x96.png">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="manifest" href="images/site.webmanifest">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
@@ -13,6 +18,19 @@
         /* 기본 폰트 설정 */
         body {
             font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        /* 헤더 스타일 수정 */
+        .header .container {
+            justify-content: flex-start;
+            padding: 0 20px;
+        }
+
+        .logo-container {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
         }
 
         /* 클럽 이름 폰트 설정 */
@@ -31,7 +49,7 @@
         /* 공지사항 상세 페이지 스타일 */
         .notice-detail-container {
             max-width: 800px;
-            margin: 80px auto 60px;
+            margin: 120px auto 60px;
             padding: 0 20px;
         }
 
@@ -172,15 +190,6 @@
                 </div>
                 <h1 class="club-name">대전HB슈팅클럽</h1>
             </a>
-            <nav class="nav">
-                <ul>
-                    <li><a href="index.html#intro">소개</a></li>
-                    <li><a href="index.html#notice">공지사항</a></li>
-                    <li><a href="index.html#pricing">가격안내</a></li>
-                    <li><a href="index.html#location">찾아오시는 길</a></li>
-                    <li><a href="index.html#contact">상담문의</a></li>
-                </ul>
-            </nav>
         </div>
     </header>
 
@@ -201,9 +210,9 @@
                 <div class="notice-content"></div>
                 <div class="notice-actions">
                     <div class="left-actions">
-                        <a href="index.html#notice" class="back-button">
+                        <a href="index.html" class="back-button">
                             <i class="fas fa-arrow-left"></i>
-                            목록으로
+                            홈으로
                         </a>
                     </div>
                     <div class="right-actions" id="applicationButtonContainer"></div>

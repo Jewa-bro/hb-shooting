@@ -840,21 +840,26 @@ function setupNoticeRowEventListeners(row, notice) {
     if (visibilityBtn) {
         visibilityBtn.addEventListener('click', async () => {
             try {
-                const newVisibility = !notice.isVisible;
+                // 현재 상태를 반전
+                notice.isVisible = !notice.isVisible;
+                
+                // Firestore 업데이트
                 await db.collection('notices').doc(notice.id).update({
-                    isVisible: newVisibility,
+                    isVisible: notice.isVisible,
                     updatedAt: new Date()
                 });
                 
                 // UI 업데이트
-                visibilityBtn.className = `visibility-toggle-btn ${newVisibility ? 'visible' : ''}`;
+                visibilityBtn.className = `visibility-toggle-btn ${notice.isVisible ? 'visible' : ''}`;
                 visibilityBtn.innerHTML = `
-                    <i class="fas ${newVisibility ? 'fa-eye' : 'fa-eye-slash'}"></i>
-                    ${newVisibility ? '노출' : '숨김'}
+                    <i class="fas ${notice.isVisible ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                    ${notice.isVisible ? '노출' : '숨김'}
                 `;
             } catch (error) {
                 console.error('노출 상태 변경 중 오류 발생:', error);
                 alert('노출 상태 변경 중 오류가 발생했습니다.');
+                // 오류 발생 시 상태 되돌리기
+                notice.isVisible = !notice.isVisible;
             }
         });
     }

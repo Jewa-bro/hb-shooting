@@ -19,34 +19,41 @@ const noticeId = urlParams.get('noticeId');
 
 // DOM 요소와 이벤트 핸들러 초기화
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM 로드됨');
+    
     // DOM 요소
-    const noticeDescription = document.querySelector('.notice-description');
     const applicationForm = document.getElementById('applicationForm');
+    console.log('폼 요소:', applicationForm);
+    
+    if (!applicationForm) {
+        console.error('applicationForm을 찾을 수 없습니다.');
+        return;
+    }
+
+    const projectDescription = document.querySelector('.project-description');
     const phoneInput = document.getElementById('phone');
-    const birthdateInput = document.getElementById('birthdate');
+    const birthYear = document.getElementById('birthYear');
+    const birthMonth = document.getElementById('birthMonth');
+    const birthDay = document.getElementById('birthDay');
+    const birthdate = document.getElementById('birthdate');
     const projectRadioGroup = document.getElementById('projectRadioGroup');
 
-    // 공지사항 정보 로드
-    async function loadNoticeInfo() {
-        if (!noticeId) {
-            noticeDescription.textContent = '신청 관련 설명이 없습니다.';
-            return;
-        }
-
-        try {
-            const doc = await db.collection('notices').doc(noticeId).get();
-            if (doc.exists) {
-                const notice = doc.data();
-                // 설명 글 표시
-                noticeDescription.textContent = notice.description || '신청 관련 설명이 없습니다.';
-            } else {
-                noticeDescription.textContent = '신청 관련 설명이 없습니다.';
+    // 프로젝트 선택 시 설명 업데이트
+    projectRadioGroup.addEventListener('change', async (e) => {
+        if (e.target.type === 'radio') {
+            try {
+                const projectId = e.target.value;
+                const doc = await db.collection('projects').doc(projectId).get();
+                if (doc.exists) {
+                    const project = doc.data();
+                    projectDescription.textContent = project.description || '신청 관련 설명이 없습니다.';
+                }
+            } catch (error) {
+                console.error('프로젝트 정보 로드 실패:', error);
+                projectDescription.textContent = '프로젝트 정보를 불러오는데 실패했습니다.';
             }
-        } catch (error) {
-            console.error('공지사항 로드 실패:', error);
-            noticeDescription.textContent = '신청 관련 설명이 없습니다.';
         }
-    }
+    });
 
     // 사업 목록 로드
     async function loadProjects() {
@@ -63,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .get();
             
             projectRadioGroup.innerHTML = '';
+            projectDescription.textContent = '사업을 선택해주세요.';
             
             if (snapshot.empty) {
                 projectRadioGroup.innerHTML = '<p class="no-projects">현재 신청 가능한 사업이 없습니다.</p>';
@@ -123,30 +131,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     isAvailable: startDateStr <= todayStr && endDateStr >= todayStr
                 });
 
-                if (startDateStr <= todayStr && endDateStr >= todayStr) {
-                    hasAvailableProjects = true;
-                    const label = document.createElement('label');
-                    label.className = 'project-radio-label';
-                    
-                    const radio = document.createElement('input');
-                    radio.type = 'radio';
-                    radio.name = 'projectId';
-                    radio.value = doc.id;
-                    radio.required = true;
-                    
-                    const info = document.createElement('div');
-                    info.className = 'project-info';
-                    
-                    const name = document.createElement('div');
-                    name.className = 'project-name';
-                    name.textContent = project.name;
-                    
-                    info.appendChild(name);
-                    label.appendChild(radio);
-                    label.appendChild(info);
-                    
-                    projectRadioGroup.appendChild(label);
-                }
+                // 모든 프로젝트를 표시하도록 수정 (날짜 제한 없이)
+                hasAvailableProjects = true;
+                const label = document.createElement('label');
+                label.className = 'project-radio-label';
+                
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'projectId';
+                radio.value = doc.id;
+                radio.required = true;
+                
+                const info = document.createElement('div');
+                info.className = 'project-info';
+                
+                const name = document.createElement('div');
+                name.className = 'project-name';
+                name.textContent = project.name;
+                
+                info.appendChild(name);
+                label.appendChild(radio);
+                label.appendChild(info);
+                
+                projectRadioGroup.appendChild(label);
             });
 
             if (!hasAvailableProjects) {
@@ -158,18 +165,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 생년월일 초기화 및 유효성 검사 설정
-    function initializeBirthdateInput() {
-        // 오늘 날짜 기준으로 max 날짜 설정 (만 12세 이상)
-        const today = new Date();
-        const maxDate = new Date(today.getFullYear() - 12, today.getMonth(), today.getDate());
-        const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate());
-        
-        birthdateInput.max = maxDate.toISOString().split('T')[0];
-        birthdateInput.min = minDate.toISOString().split('T')[0];
-        
-        // 기본값을 1990년으로 설정
-        birthdateInput.value = '1990-01-01';
+    // 생년월일 입력 처리
+    function updateBirthdate() {
+        // null 체크 추가
+        if (!birthYear || !birthMonth || !birthDay || !birthdate) {
+            console.error('생년월일 입력 필드를 찾을 수 없습니다.');
+            return;
+        }
+
+        if (birthYear.value && birthMonth.value && birthDay.value) {
+            try {
+                // 월과 일이 한 자리 수인 경우 앞에 0을 붙임
+                const month = birthMonth.value.padStart(2, '0');
+                const day = birthDay.value.padStart(2, '0');
+                birthdate.value = `${birthYear.value}-${month}-${day}`;
+            } catch (error) {
+                console.error('생년월일 처리 중 오류:', error);
+            }
+        }
+    }
+
+    // 자동 포커스 이동 처리
+    if (birthYear) {
+        birthYear.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            if (e.target.value.length === 4 && birthMonth) {
+                birthMonth.focus();
+            }
+            updateBirthdate();
+        });
+    }
+
+    if (birthMonth) {
+        birthMonth.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            let value = e.target.value;
+            if (value.length === 1 && parseInt(value) > 1) {
+                value = '0' + value;
+                e.target.value = value;
+            }
+            if (value.length === 2) {
+                if (parseInt(value) > 12) {
+                    e.target.value = '12';
+                } else if (parseInt(value) < 1) {
+                    e.target.value = '01';
+                }
+                if (birthDay) {
+                    birthDay.focus();
+                }
+            }
+            updateBirthdate();
+        });
+    }
+
+    if (birthDay) {
+        birthDay.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            let value = e.target.value;
+            if (value.length === 1 && parseInt(value) > 3) {
+                value = '0' + value;
+                e.target.value = value;
+            }
+            if (value.length === 2) {
+                if (parseInt(value) > 31) {
+                    e.target.value = '31';
+                } else if (parseInt(value) < 1) {
+                    e.target.value = '01';
+                }
+                // 다음 입력 필드로 이동 (예: 성별 라디오 버튼)
+                const genderInputs = document.querySelectorAll('input[name="gender"]');
+                if (genderInputs.length > 0) {
+                    genderInputs[0].focus();
+                }
+            }
+            updateBirthdate();
+        });
     }
 
     // 전화번호 형식 자동 변환
@@ -186,9 +256,25 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const selectedProject = document.querySelector('input[name="projectId"]:checked');
+        const projectValidationInput = document.querySelector('.project-validation-input');
+
         if (!selectedProject) {
-            alert('사업을 선택해주세요.');
+            // 프로젝트 라디오 그룹으로 스크롤
+            projectRadioGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // validation 툴팁 표시를 위한 처리
+            if (projectValidationInput) {
+                projectValidationInput.value = '';
+                projectValidationInput.focus();
+                projectValidationInput.blur();
+                projectValidationInput.reportValidity();
+            }
             return;
+        }
+
+        // 프로젝트가 선택되면 validation input을 유효한 상태로 만듦
+        if (projectValidationInput) {
+            projectValidationInput.value = 'valid';
         }
 
         const projectId = selectedProject.value;
@@ -252,8 +338,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // 프로젝트 선택 시 validation input 업데이트
+    projectRadioGroup.addEventListener('change', (e) => {
+        if (e.target.type === 'radio') {
+            const projectValidationInput = document.querySelector('.project-validation-input');
+            if (projectValidationInput) {
+                projectValidationInput.value = 'valid';
+            }
+        }
+    });
+
     // 초기화 함수 호출
-    loadNoticeInfo();
-    initializeBirthdateInput();
     loadProjects();
+    console.log('초기화 완료');
 }); 

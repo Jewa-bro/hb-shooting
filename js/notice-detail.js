@@ -86,9 +86,9 @@ async function loadNoticeDetail() {
             leftActions.className = 'left-actions';
             
             const backButton = document.createElement('a');
-            backButton.href = 'index.html#notice';
+            backButton.href = 'index.html';
             backButton.className = 'back-button';
-            backButton.innerHTML = '<i class="fas fa-arrow-left"></i> 목록으로';
+            backButton.innerHTML = '<i class="fas fa-arrow-left"></i> 홈으로';
             
             leftActions.appendChild(backButton);
             noticeActions.appendChild(leftActions);
