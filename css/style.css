@@ -55,8 +55,9 @@ body {
 
 .logo img {
     height: 50px;
-    width: auto;
-    object-fit: contain;
+    width: 50px;
+    object-fit: cover;
+    border-radius: 8px;
     display: block;
 }
 
