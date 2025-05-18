@@ -19,9 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // 슬라이드 이미지 추가
     const swiperWrapper = document.querySelector('.swiper-wrapper');
     const images = [
-        { src: 'images/gunimage.jpg', alt: '레이저 사격 체험' },
-        { src: 'images/concentration.jpg', alt: '집중력 향상' },
-        { src: 'images/industurctor.jpg', alt: '전문 강사진' }
+        { src: 'images/slide1.jpg', alt: '대전HB슈팅클럽 전경' },
+        { src: 'images/slide2.jpg', alt: '사격장 내부' },
+        { src: 'images/slide3.jpg', alt: '레이저 사격 체험' },
+        { src: 'images/slide4.jpg', alt: '사격 강습' },
     ];
 
     images.forEach(image => {
