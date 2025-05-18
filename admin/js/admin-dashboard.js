@@ -1,7 +1,4 @@
 // Firebase 인스턴스는 firebase-config.js에서 가져옵니다.
-console.log('=== Firebase 연결 상태 확인 ===');
-console.log('db 객체 존재 여부:', !!db);
-console.log('auth 객체 존재 여부:', !!auth);
 
 // DOM 요소
 const logoutBtn = document.getElementById('logoutBtn');
@@ -11,9 +8,6 @@ const projectsList = document.getElementById('projectsList');
 const addProjectBtn = document.getElementById('addProjectBtn');
 const newNoticeBtn = document.getElementById('newNoticeBtn');
 const noticesList = document.getElementById('noticesList');
-
-console.log('=== DOM 요소 확인 ===');
-console.log('projectsList 요소 존재 여부:', !!projectsList);
 
 let isLoggingOut = false;
 
@@ -66,93 +60,49 @@ if (navBtns.length > 0) {
 // 프로젝트 목록 렌더링
 async function renderProjects() {
     try {
-        console.log('=== 프로젝트 목록 로드 시작 ===');
-        console.log('db 객체 상태:', db);
+        console.log('프로젝트 목록 로드 시작');
+        console.log('DB 인스턴스:', !!db);
         
-        // projects 컬렉션 참조 확인
         const projectsRef = db.collection('projects');
-        console.log('projects 컬렉션 참조:', projectsRef);
+        console.log('프로젝트 컬렉션 참조:', !!projectsRef);
         
-        // projects 컬렉션에서 모든 프로젝트 가져오기
-        console.log('프로젝트 데이터 조회 시작...');
-        const projectsSnapshot = await db.collection('projects').get();
-        console.log('프로젝트 데이터 조회 완료');
-        
-        console.log('=== 프로젝트 데이터 ===');
-        console.log('총 프로젝트 수:', projectsSnapshot.size);
-        console.log('프로젝트 목록:');
-        projectsSnapshot.docs.forEach(doc => {
-            console.log('프로젝트 ID:', doc.id);
-            console.log('프로젝트 데이터:', JSON.stringify(doc.data(), null, 2));
-            console.log('------------------------');
-        });
+        const snapshot = await projectsRef
+            .orderBy('createdAt', 'desc')
+            .get();
 
         projectsList.innerHTML = '';
         
-        if (projectsSnapshot.empty) {
-            console.log('등록된 프로젝트 없음');
+        if (snapshot.empty) {
+            console.log('프로젝트가 없음');
             projectsList.innerHTML = '<tr><td colspan="9" class="no-data">등록된 사업이 없습니다.</td></tr>';
             return;
         }
 
-        // 각 프로젝트에 대해 처리
-        for (const projectDoc of projectsSnapshot.docs) {
-            const projectData = projectDoc.data();
+        // 각 프로젝트에 대해 통계 업데이트 후 렌더링
+        for (const doc of snapshot.docs) {
+            await updateProjectStats(doc.id);
             
-            console.log(`=== 프로젝트 처리: ${projectDoc.id} ===`);
-            console.log('프로젝트 데이터:', projectData);
-
-            // applications 컬렉션에서 해당 프로젝트의 신청 건수 가져오기
-            const applicationsSnapshot = await db.collection('applications')
-                .where('projectId', '==', projectDoc.id)
-                .get();
-
-            console.log('=== 신청 데이터 조회 결과 ===');
-            console.log('총 신청 수:', applicationsSnapshot.size);
-            console.log('신청 목록:');
-            applicationsSnapshot.docs.forEach(doc => {
-                console.log('신청 ID:', doc.id);
-                console.log('신청 데이터:', doc.data());
-                console.log('------------------------');
-            });
-
-            // 통계 계산
-            let stats = {
-                total: applicationsSnapshot.size,
-                approved: 0,
-                pending: 0,
-                rejected: 0
-            };
-
-            applicationsSnapshot.forEach(appDoc => {
-                const status = appDoc.data().status || 'pending';
-                stats[status]++;
-            });
-
-            console.log('=== 계산된 통계 ===');
-            console.log(stats);
-
+            const project = doc.data();
             const row = document.createElement('tr');
             row.className = 'project-row';
-            row.dataset.projectId = projectDoc.id;
+            row.dataset.projectId = doc.id;
             
             row.innerHTML = `
                 <td class="project-name-cell">
-                    ${projectData.name || '제목 없음'}
+                    ${project.name || '제목 없음'}
                 </td>
-                <td>${projectData.details || ''}</td>
-                <td>${projectData.startDate ? formatDate(projectData.startDate) : '-'}</td>
-                <td>${projectData.endDate ? formatDate(projectData.endDate) : '-'}</td>
-                <td class="total-stat">${stats.total}</td>
-                <td class="approved-stat">${stats.approved}</td>
-                <td class="pending-stat">${stats.pending}</td>
-                <td class="rejected-stat">${stats.rejected}</td>
+                <td>${project.description || ''}</td>
+                <td>${formatDate(project.startDate)}</td>
+                <td>${formatDate(project.endDate)}</td>
+                <td class="total-stat">${project.totalApplications || 0}</td>
+                <td class="approved-stat">${project.approvedApplications || 0}</td>
+                <td class="pending-stat">${project.pendingApplications || 0}</td>
+                <td class="rejected-stat">${project.rejectedApplications || 0}</td>
                 <td class="action-cell">
-                    <button class="view-applications-btn" data-id="${projectDoc.id}">신청내역</button>
+                    <button class="edit-project-btn" data-id="${doc.id}">수정</button>
+                    <button class="delete-project-btn" data-id="${doc.id}" style="margin-left: 8px;">삭제</button>
                 </td>
             `;
-
-            projectsList.appendChild(row);
 
             // 참가신청 목록 컨테이너 추가
             const applicationsContainer = document.createElement('tr');
@@ -163,7 +113,7 @@ async function renderProjects() {
                         <div class="applications-header">
                             <h3>참가신청 목록</h3>
                             <div class="applications-filters">
-                                <select class="status-filter" data-project-id="${projectDoc.id}">
+                                <select class="status-filter" data-project-id="${doc.id}">
                                     <option value="all">전체 보기</option>
                                     <option value="pending">대기</option>
                                     <option value="approved">승인</option>
@@ -184,111 +134,50 @@ async function renderProjects() {
                                     <th>관리</th>
                                 </tr>
                             </thead>
-                            <tbody class="applications-list" data-project-id="${projectDoc.id}">
+                            <tbody class="applications-list" data-project-id="${doc.id}">
                             </tbody>
                         </table>
                     </div>
                 </td>
             `;
 
+            projectsList.appendChild(row);
             projectsList.appendChild(applicationsContainer);
 
-            // 행 클릭 이벤트 추가
-            row.addEventListener('click', () => {
-                handleProjectRowClick(row, projectDoc);
+            // 수정 버튼 클릭 이벤트
+            const editBtn = row.querySelector('.edit-project-btn');
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // 이벤트 전파 중단
+                handleEditProject(doc);
+            });
+
+            // 삭제 버튼 클릭 이벤트
+            const deleteBtn = row.querySelector('.delete-project-btn');
+            deleteBtn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // 이벤트 전파 중단
+                if (confirm('정말로 이 사업을 삭제하시겠습니까?')) {
+                    try {
+                        await db.collection('projects').doc(doc.id).delete();
+                        await renderProjects();
+                    } catch (error) {
+                        console.error('사업 삭제 중 오류 발생:', error);
+                        alert('사업 삭제 중 오류가 발생했습니다.');
+                    }
+                }
+            });
+
+            // 프로젝트 행 클릭 이벤트
+            row.addEventListener('click', async (e) => {
+                // 수정/삭제 버튼 클릭 시 이벤트 전파 중단
+                if (e.target.closest('.edit-project-btn') || e.target.closest('.delete-project-btn')) {
+                    return;
+                }
+                handleProjectRowClick(row, doc);
             });
         }
-
-        console.log('=== 프로젝트 목록 렌더링 완료 ===');
     } catch (error) {
         console.error('프로젝트 목록 로드 중 오류 발생:', error);
-        console.error('오류 상세 정보:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-        });
         projectsList.innerHTML = '<tr><td colspan="9" class="error-message">프로젝트 목록을 불러오는 중 오류가 발생했습니다.</td></tr>';
-    }
-}
-
-// 참가신청 목록 로드
-async function loadApplications(projectId, container) {
-    try {
-        console.log('=== 참가신청 목록 로드 시작 ===');
-        console.log('프로젝트 ID:', projectId);
-        
-        const snapshot = await db.collection('applications')
-            .where('projectId', '==', projectId)
-            .orderBy('createdAt', 'desc')
-            .get();
-
-        console.log('=== 쿼리 결과 ===');
-        console.log('총 문서 수:', snapshot.size);
-        console.log('문서 목록:');
-        snapshot.forEach(doc => {
-            console.log('문서 ID:', doc.id);
-            console.log('문서 데이터:', doc.data());
-            console.log('------------------------');
-        });
-
-        if (snapshot.empty) {
-            console.log('참가신청 내역 없음');
-            container.innerHTML = '<tr><td colspan="8" class="no-data">참가신청 내역이 없습니다.</td></tr>';
-            return;
-        }
-
-        // 데이터를 배열로 변환
-        const applications = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-
-        console.log('=== 변환된 데이터 ===');
-        console.log('applications:', applications);
-
-        // 승인된 신청 건들의 승인 시간순 정렬을 위한 배열
-        const approvedApplications = applications
-            .filter(app => app.status === 'approved')
-            .sort((a, b) => {
-                const timeA = a.updatedAt ? new Date(a.updatedAt) : new Date(0);
-                const timeB = b.updatedAt ? new Date(b.updatedAt) : new Date(0);
-                return timeA - timeB;
-            });
-
-        console.log('=== 승인된 신청 ===');
-        console.log('승인된 신청 수:', approvedApplications.length);
-        console.log('승인된 신청 목록:', approvedApplications);
-
-        // 승인 순서 맵 생성
-        const approvalOrderMap = new Map();
-        approvedApplications.forEach((app, index) => {
-            approvalOrderMap.set(app.id, index + 1);
-        });
-
-        // 상태 필터 설정
-        const statusFilter = container.closest('.applications-grid').querySelector('.status-filter');
-        const currentFilter = statusFilter.value || 'all';
-
-        console.log('=== 렌더링 정보 ===');
-        console.log('현재 필터:', currentFilter);
-        console.log('승인 순서:', Array.from(approvalOrderMap.entries()));
-
-        // 리스트 렌더링
-        renderApplications(applications, container, currentFilter, approvalOrderMap);
-
-        // 상태 필터 이벤트 리스너
-        if (!statusFilter.hasEventListener) {
-            statusFilter.hasEventListener = true;
-            statusFilter.addEventListener('change', () => {
-                renderApplications(applications, container, statusFilter.value, approvalOrderMap);
-            });
-        }
-
-        console.log('=== 참가신청 목록 로드 완료 ===');
-
-    } catch (error) {
-        console.error('참가신청 목록 로드 중 오류 발생:', error);
-        container.innerHTML = '<tr><td colspan="8" class="error-message">참가신청 목록을 불러오는 중 오류가 발생했습니다.</td></tr>';
     }
 }
 
@@ -344,14 +233,69 @@ async function getProjectStats(projectId) {
     return snapshot.data();
 }
 
+// 참가신청 목록 로드
+async function loadApplications(projectId, container) {
+    try {
+        console.log('참가신청 목록 로드 시작 - 프로젝트 ID:', projectId);
+        
+        const snapshot = await db.collection('applications')
+            .where('projectId', '==', projectId)
+            .get();
+
+        console.log('참가신청 데이터 받음:', {
+            empty: snapshot.empty,
+            size: snapshot.size
+        });
+
+        // 상태 필터 이벤트 리스너
+        const statusFilter = container.closest('.applications-grid').querySelector('.status-filter');
+        if (!statusFilter.hasEventListener) {  // 이벤트 리스너 중복 방지
+            statusFilter.hasEventListener = true;
+            statusFilter.addEventListener('change', () => {
+                renderApplications(applications, container, statusFilter.value, approvalOrderMap);
+            });
+        }
+
+        if (snapshot.empty) {
+            container.innerHTML = '<tr><td colspan="8" class="no-data">참가신청 내역이 없습니다.</td></tr>';
+            return;
+        }
+
+        // 데이터를 배열로 변환
+        const applications = [];
+        snapshot.forEach(doc => {
+            applications.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        // 승인된 신청 건들의 승인 시간순 정렬을 위한 배열
+        const approvedApplications = applications
+            .filter(app => app.status === 'approved')
+            .sort((a, b) => {
+                const timeA = a.updatedAt ? a.updatedAt.toDate() : new Date(0);
+                const timeB = b.updatedAt ? b.updatedAt.toDate() : new Date(0);
+                return timeA - timeB;
+            });
+
+        // 승인 순서 맵 생성
+        const approvalOrderMap = new Map();
+        approvedApplications.forEach((app, index) => {
+            approvalOrderMap.set(app.id, index + 1);
+        });
+
+        // 초기 렌더링
+        renderApplications(applications, container, statusFilter.value || 'all', approvalOrderMap);
+
+    } catch (error) {
+        console.error('참가신청 목록 로드 중 오류 발생:', error);
+        container.innerHTML = '<tr><td colspan="8" class="error-message">참가신청 목록을 불러오는 중 오류가 발생했습니다.</td></tr>';
+    }
+}
+
 // 참가신청 목록 렌더링 함수
 function renderApplications(applications, container, filterStatus, approvalOrderMap) {
-    console.log('1. renderApplications 시작:', {
-        applicationsCount: applications.length,
-        filterStatus,
-        approvalOrderMap: Array.from(approvalOrderMap.entries())
-    });
-
     container.innerHTML = '';
 
     // 상태 필터링
@@ -360,8 +304,6 @@ function renderApplications(applications, container, filterStatus, approvalOrder
         return application.status === filterStatus;
     });
 
-    console.log('2. 필터링된 applications:', filteredApplications);
-
     if (filteredApplications.length === 0) {
         container.innerHTML = '<tr><td colspan="8" class="no-data">해당하는 참가신청 내역이 없습니다.</td></tr>';
         return;
@@ -369,25 +311,17 @@ function renderApplications(applications, container, filterStatus, approvalOrder
 
     // 날짜순 정렬
     filteredApplications.sort((a, b) => {
-        const getTime = (timestamp) => {
-            if (!timestamp) return 0;
-            if (timestamp.toDate) return timestamp.toDate().getTime();
-            return new Date(timestamp).getTime();
-        };
-
-        return getTime(b.createdAt) - getTime(a.createdAt);
+        const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+        const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+        return dateB - dateA;
     });
-
-    console.log('3. 정렬된 applications:', filteredApplications);
 
     filteredApplications.forEach(application => {
         const row = document.createElement('tr');
-        const birthDate = `${application.birthYear}-${application.birthMonth}-${application.birthDay}`;
-        
         row.innerHTML = `
-            <td>${formatDateTime(application.createdAt)}</td>
+            <td>${formatDate(application.createdAt) || ''}</td>
             <td>${application.name || ''}</td>
-            <td>${birthDate}</td>
+            <td>${formatDate(application.birthdate) || ''}</td>
             <td>${application.gender === 'male' ? '남성' : '여성'}</td>
             <td>${application.phone || ''}</td>
             <td>
@@ -411,48 +345,11 @@ function renderApplications(applications, container, filterStatus, approvalOrder
             </td>
         `;
 
+        // 기존 이벤트 리스너 설정...
         setupApplicationRowEventListeners(row, application, container);
+
         container.appendChild(row);
     });
-}
-
-// 날짜/시간 포맷 함수
-function formatDateTime(dateStr) {
-    if (!dateStr) return '-';
-    
-    // Firestore Timestamp 객체인 경우
-    if (dateStr && dateStr.toDate) {
-        return new Intl.DateTimeFormat('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        }).format(dateStr.toDate());
-    }
-    
-    // 일반 Date 객체나 문자열인 경우
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
-    
-    return new Intl.DateTimeFormat('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    }).format(date);
-}
-
-// 상태 텍스트 변환 함수
-function getStatusText(status) {
-    switch(status) {
-        case 'approved': return '승인';
-        case 'rejected': return '거절';
-        default: return '대기';
-    }
 }
 
 // 참가신청 행 이벤트 리스너 설정
@@ -516,63 +413,74 @@ async function loadApplicationsData(projectId) {
     const snapshot = await db.collection('applications')
         .where('projectId', '==', projectId)
         .get();
-    
-    return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    }));
+
+    const applications = [];
+    snapshot.forEach(doc => {
+        applications.push({
+            id: doc.id,
+            ...doc.data()
+        });
+    });
+    return applications;
 }
 
 // 프로젝트 통계 업데이트
 async function updateProjectStats(projectId) {
     try {
-        // 해당 프로젝트의 모든 신청 데이터 조회
-        const applicationsSnapshot = await db.collection('applications')
+        console.log('프로젝트 통계 업데이트 시작:', projectId);
+        
+        const snapshot = await db.collection('applications')
             .where('projectId', '==', projectId)
             .get();
 
-        // 상태별 카운트 초기화
-        let totalApplications = 0;
-        let approvedApplications = 0;
-        let pendingApplications = 0;
-        let rejectedApplications = 0;
+        console.log('신청 데이터 조회 결과:', {
+            empty: snapshot.empty,
+            size: snapshot.size
+        });
 
-        // 각 신청 건수 집계
-        applicationsSnapshot.forEach(doc => {
+        let stats = {
+            total: 0,
+            approved: 0,
+            pending: 0,
+            rejected: 0
+        };
+
+        snapshot.forEach(doc => {
             const application = doc.data();
-            totalApplications++;
+            stats.total++;
             
-            switch(application.status) {
+            switch (application.status) {
                 case 'approved':
-                    approvedApplications++;
+                    stats.approved++;
                     break;
                 case 'rejected':
-                    rejectedApplications++;
+                    stats.rejected++;
                     break;
-                default: // 'pending'
-                    pendingApplications++;
-                    break;
+                default:
+                    stats.pending++;
             }
         });
 
+        console.log('계산된 통계:', stats);
+
         // 프로젝트 문서 업데이트
         await db.collection('projects').doc(projectId).update({
-            totalApplications,
-            approvedApplications,
-            pendingApplications,
-            rejectedApplications,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            totalApplications: stats.total,
+            approvedApplications: stats.approved,
+            pendingApplications: stats.pending,
+            rejectedApplications: stats.rejected
         });
 
         // UI 업데이트
-        const row = document.querySelector(`tr[data-project-id="${projectId}"]`);
-        if (row) {
-            row.querySelector('.total-stat').textContent = totalApplications;
-            row.querySelector('.approved-stat').textContent = approvedApplications;
-            row.querySelector('.pending-stat').textContent = pendingApplications;
-            row.querySelector('.rejected-stat').textContent = rejectedApplications;
+        const projectRow = document.querySelector(`tr[data-project-id="${projectId}"]`);
+        if (projectRow) {
+            projectRow.querySelector('.total-stat').textContent = stats.total;
+            projectRow.querySelector('.approved-stat').textContent = stats.approved;
+            projectRow.querySelector('.pending-stat').textContent = stats.pending;
+            projectRow.querySelector('.rejected-stat').textContent = stats.rejected;
         }
 
+        console.log('프로젝트 통계 업데이트 완료');
     } catch (error) {
         console.error('프로젝트 통계 업데이트 중 오류 발생:', error);
     }
@@ -687,6 +595,18 @@ function formatDate(date) {
     });
 }
 
+// 상태 텍스트 반환 함수
+function getStatusText(status) {
+    switch (status) {
+        case 'approved':
+            return '승인';
+        case 'rejected':
+            return '거절';
+        default:
+            return '대기';
+    }
+}
+
 // 인증 상태 확인
 let authStateChangeHandler = null;
 let initialAuthCheckDone = false;
@@ -712,19 +632,26 @@ function setupAuthStateListener() {
 
 // 페이지 로드 시 인증 상태 리스너 설정
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('=== 페이지 로드 완료 ===');
-    
+    console.log("--- Date/Time Diagnosis ---");
+    const now = new Date();
+    console.log("Current Date Object (from 'new Date()'):", now);
+    console.log("Formatted with toString():", now.toString());
+    console.log("Formatted as UTC (toISOString()):", now.toISOString());
+    console.log("Formatted with toLocaleString('ko-KR') (client's default timezone):", now.toLocaleString('ko-KR'));
+    console.log("Formatted with toLocaleDateString('ko-KR') (client's default timezone):", now.toLocaleDateString('ko-KR'));
     try {
-        if (logoutBtn) {
-            console.log('로그아웃 버튼 존재, 인증 상태 리스너 설정 시작');
-            setupAuthStateListener();
-        }
-        if (noticesList) {
-            console.log('공지사항 목록 존재, 공지사항 로드 시작');
-            loadNotices();
-        }
-    } catch (error) {
-        console.error('초기화 중 오류 발생:', error);
+        console.log("Attempting toLocaleString with Asia/Seoul timezone:", now.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }));
+    } catch (e) {
+        console.warn("Could not format with explicit Asia/Seoul timezone. This might indicate an issue with Intl API support or timezone data in this browser environment.", e);
+    }
+    console.log("Client's reported timezone offset from UTC (minutes):", now.getTimezoneOffset());
+    console.log("--- End Date/Time Diagnosis ---");
+
+    if (logoutBtn) {
+        setupAuthStateListener();
+    }
+    if (noticesList) {
+        loadNotices();
     }
 });
 
@@ -1075,29 +1002,20 @@ async function handleEditProject(doc) {
 }
 
 // 프로젝트 행 클릭 이벤트 처리
-function handleProjectRowClick(row, projectDoc) {
-    console.log('=== 프로젝트 행 클릭 ===');
-    console.log('클릭된 프로젝트 ID (projectDoc.id):', projectDoc.id);
-    console.log('클릭된 프로젝트 데이터 (projectDoc.data()):', JSON.stringify(projectDoc.data(), null, 2));
-
+function handleProjectRowClick(row, doc) {
     const container = row.nextElementSibling;
-    if (!container || !container.classList.contains('applications-container')) {
-        console.error('신청 목록 컨테이너를 찾을 수 없습니다.');
-        return;
-    }
-
     const allRows = document.querySelectorAll('.project-row');
     
-    // 다른 모든 행의 선택 상태 제거 및 컨테이너 숨김
+    // 다른 모든 행의 선택 상태 제거
     allRows.forEach(r => {
         if (r !== row) {
             r.classList.remove('selected');
             const nextContainer = r.nextElementSibling;
-            if (nextContainer && nextContainer.classList.contains('applications-container') && !nextContainer.classList.contains('hidden')) {
+            if (nextContainer && nextContainer.classList.contains('applications-container')) {
                 nextContainer.classList.remove('expanded');
                 setTimeout(() => {
                     nextContainer.classList.add('hidden');
-                }, 300); 
+                }, 300);
             }
         }
     });
@@ -1106,34 +1024,20 @@ function handleProjectRowClick(row, projectDoc) {
     row.classList.toggle('selected');
     
     // 컨테이너 애니메이션
-    if (row.classList.contains('selected')) {
-        console.log('선택된 행 -> 신청 목록 표시 시작');
+    if (container.classList.contains('hidden')) {
         container.classList.remove('hidden');
+        // 약간의 지연 후 expanded 클래스 추가
         setTimeout(() => {
             container.classList.add('expanded');
-        }, 10); // DOM 업데이트 후 애니메이션 적용
+        }, 10);
         
-        const applicationsList = container.querySelector('.applications-list');
-        if (!applicationsList) {
-            console.error('신청 목록 테이블 tbody를 찾을 수 없습니다.');
-            return;
-        }
-
-        console.log(`loadApplications 호출 예정 - projectId: ${projectDoc.id}`);
-        loadApplications(projectDoc.id, applicationsList)
-            .then(() => {
-                console.log(`프로젝트 ID ${projectDoc.id}에 대한 참가신청 목록 로드 완료`);
-                return updateProjectStats(projectDoc.id);
-            })
-            .then(() => {
-                console.log(`프로젝트 ID ${projectDoc.id}에 대한 통계 업데이트 완료`);
-            })
-            .catch(error => {
-                console.error(`프로젝트 ID ${projectDoc.id} 처리 중 오류:`, error);
-            });
+        console.log('참가신청 목록 로드 시작:', doc.id);
+        // 참가신청 목록 로드 및 통계 업데이트
+        loadApplications(doc.id, container.querySelector('.applications-list'));
+        updateProjectStats(doc.id);
     } else {
-        console.log('선택 해제된 행 -> 신청 목록 숨김');
         container.classList.remove('expanded');
+        // 애니메이션 완료 후 hidden 클래스 추가
         setTimeout(() => {
             container.classList.add('hidden');
         }, 300);
